@@ -8,7 +8,7 @@ const store = useStore();
 <template>
   <div v-if="store.game.currentQuestion">
     {{ store.game.currentQuestion.questionText }}
-    <ul>
+    <ul v-if="store.game.displayPossibilities">
       <li v-for="(answer, answerIndex) in store.game.currentQuestion.answers" :key="answerIndex">
         <span v-if="answer.revealed">{{ answer.answerText }} ({{ answer.count }})</span>
         <span v-else>???</span>

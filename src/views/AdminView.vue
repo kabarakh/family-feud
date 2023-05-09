@@ -24,6 +24,14 @@ const increaseMultiplier = () => {
 const resetMultiplier = () => {
   store.resetMultiplier();
 }
+
+const nextPlayersBuzzering = () => {
+  store.nextPlayersBuzzering();
+}
+
+const displayPossibilities = () => {
+  store.game.displayPossibilities = true;
+}
 </script>
 
 <template>
@@ -35,13 +43,14 @@ const resetMultiplier = () => {
   <div v-for="(question, index) in store.game.questionList" :key="index">
     {{ question.questionText }} <button @click.prevent="selectQuestion(question)">Select</button>
   </div>
-  <h2>Current Question</h2>
+  <h2>Current Question <span v-if="store.game.currentQuestion">({{store.game.currentQuestion.answers.length}} possibilities)</span></h2>
   <div>
     <div v-if="store.game.currentQuestion">
       {{store.game.currentQuestion.questionText}}
+        <button v-if="!store.game.displayPossibilities" @click.prevent="displayPossibilities">Display possibilities</button>
       <ul>
         <li v-for="(answer, index) in store.game.currentQuestion.answers" :key="index">
-          {{answer.answerText}} ({{answer.count}}) <button @click.prevent="revealAnswer(answer)" v-if="!answer.revealed">Reveal</button>
+          {{answer.answerText}} ({{answer.count}}) <button @click.prevent="revealAnswer(answer)" v-if="store.game.displayPossibilities && !answer.revealed">Reveal</button>
         </li>
       </ul>
     </div>
@@ -49,6 +58,7 @@ const resetMultiplier = () => {
   </div>
   <h2>Groups</h2>
   <button @click.prevent="deselectTeam">Deselect Team</button>
+    <button @click.prevent="nextPlayersBuzzering">Next player buzzering</button>
   <div class="flex-cols">
     <TeamList v-for="(team, index) in store.game.teams" :key="team.players.join()" mode="Admin" :team-index="index"/>
   </div>

@@ -2,24 +2,31 @@ import {defineStore} from 'pinia';
 import type {Game} from '@/interfaces/Game';
 import type {Question} from '@/interfaces/Question';
 import type {Answer} from '@/interfaces/Answer';
-import {cloneDeep, each} from 'lodash';
+import {cloneDeep, each, forEach, indexOf} from 'lodash';
 import type {Team} from '@/interfaces/Team';
 
 export const useStore = defineStore({
   id: 'questions',
   state: (): { game: Game } => ({
     game: {
+      displayPossibilities: false,
       currentMultiplier: 1,
       teams: [
         {
           crosses: 0,
-          currentPlayer: '',
+          currentPlayer: {
+            guessing: '',
+            buzzering: ''
+          },
           players: [],
           points: 0
         },
         {
           crosses: 0,
-          currentPlayer: '',
+          currentPlayer: {
+            guessing: '',
+            buzzering: ''
+          },
           players: [],
           points: 0
         }
@@ -80,9 +87,7 @@ export const useStore = defineStore({
             {answerText: "Housing", count: 7, revealed: false},
             {answerText: "afk", count: 7, revealed: false},
           ]
-
-        }
-        ,
+        },
         {
           questionText: 'Name an MSQ Character',
           answers: [
@@ -122,6 +127,7 @@ export const useStore = defineStore({
   actions: {
     selectQuestion(question: Question) {
       this.game.currentQuestion = cloneDeep(question);
+      this.game.displayPossibilities = false;
     },
     revealAnswer(answer: Answer) {
       answer.revealed = true;
@@ -155,6 +161,27 @@ export const useStore = defineStore({
     },
     resetMultiplier() {
       this.game.currentMultiplier = 1;
+    },
+    nextPlayersBuzzering() {
+      forEach(this.game.teams, (team: Team) => {
+        const currentPlayerIndex = indexOf(team.players, team.currentPlayer.buzzering);
+        let newIndex = 0;
+        if (currentPlayerIndex !== -1 && currentPlayerIndex !== team.players.length - 1) {
+          newIndex = currentPlayerIndex + 1;
+        }
+        team.currentPlayer.buzzering = team.players[newIndex];
+        team.currentPlayer.guessing = team.players[newIndex];
+      });
+    },
+    nextPlayerGuessing(teamIndex: number) {
+      const team = this.game.teams[teamIndex];
+      const currentPlayerIndex = indexOf(team.players, team.currentPlayer.guessing);
+      if (currentPlayerIndex === -1 || currentPlayerIndex === team.players.length - 1) {
+        team.currentPlayer.guessing = team.players[0];
+      } else {
+        team.currentPlayer.guessing = team.players[currentPlayerIndex + 1];
+      }
+
     }
   },
 });

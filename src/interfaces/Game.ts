@@ -7,4 +7,5 @@ export interface Game {
   teams: Team[];
   currentTeam?: number;
   currentMultiplier: number;
+  displayPossibilities: boolean;
 }

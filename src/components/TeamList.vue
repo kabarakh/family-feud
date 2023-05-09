@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useStore } from '@/stores/QuestionData';
-import { computed, ref } from 'vue';
+import {useStore} from '@/stores/QuestionData';
+import {computed, ref} from 'vue';
 
 const store = useStore();
 const props = defineProps<{
@@ -31,6 +31,10 @@ const selectTeam = () => {
 const finishRound = () => {
   store.finishRound(props.teamIndex);
 }
+
+const nextPlayerGuessing = () => {
+  store.nextPlayerGuessing(props.teamIndex);
+}
 </script>
 
 <style scoped lang="scss">
@@ -50,26 +54,29 @@ const finishRound = () => {
 </style>
 
 <template>
-  <div :class="{selected: props.teamIndex === store.game.currentTeam, team: true}">
-    <h3>Team {{ teamIndex + 1 }}
-      <span v-if="isAdmin">
+    <div :class="{selected: props.teamIndex === store.game.currentTeam, team: true}">
+        <h3>Team {{ teamIndex + 1 }}
+            <span v-if="isAdmin">
         <button @click.prevent="selectTeam">Select</button>
         <button @click.prevent="addCross">Cross</button>
         <button @click.prevent="finishRound">Finish</button>
+        <button @click.prevent="nextPlayerGuessing">Next player guessing</button>
       </span>
-    </h3>
-    <ul>
-      <li v-for="player in team.players" :key="player">
-        <span v-if="team.currentPlayer === player">-></span>{{ player }}
-      </li>
-    </ul>
-    <p><b>Punkte:</b> {{ team.points }}</p>
-    <div class="crosses">
-      <span v-for="(cross, index) in [...Array(team.crosses).keys()]" :key="index">X</span>
+        </h3>
+        <ul>
+            <li v-for="player in team.players" :key="player">
+                {{ player }}
+                <span v-if="team.currentPlayer.buzzering === player">(B)</span>
+                <span v-if="team.currentPlayer.guessing === player">(G)</span>
+            </li>
+        </ul>
+        <p><b>Punkte:</b> {{ team.points }}</p>
+        <div class="crosses">
+            <span v-for="(cross, index) in [...Array(team.crosses).keys()]" :key="index">X</span>
+        </div>
+        <form v-if="isAdmin" @submit.prevent="addPlayer(newName)">
+            <input type="text" v-model="newName"/>
+            <input type="submit" value="Add Player"/>
+        </form>
     </div>
-    <form v-if="isAdmin" @submit.prevent="addPlayer(newName)">
-      <input type="text" v-model="newName"/>
-      <input type="submit" value="Add Player"/>
-    </form>
-  </div>
 </template>

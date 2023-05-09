@@ -1,6 +1,9 @@
 export interface Team {
   points: number;
   crosses: number;
-  currentPlayer: string;
+  currentPlayer: {
+    buzzering: string;
+    guessing: string
+  };
   players: string[];
 }
